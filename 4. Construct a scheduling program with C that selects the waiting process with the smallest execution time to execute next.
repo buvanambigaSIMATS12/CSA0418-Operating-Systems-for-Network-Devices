@@ -1,0 +1,75 @@
+#include <stdio.h>
+#include <stdbool.h>
+
+struct Process {
+    int pid;
+    int burst;
+    int waiting;
+    int turnaround;
+    bool completed;
+};
+
+void sjf(struct Process proc[], int n) {
+    int total_time = 0;
+    int completed = 0;
+    
+    while (completed < n) {
+        int shortest = -1;
+        int shortest_burst = 9999;
+        
+        // Find process with shortest burst time that has arrived and not completed
+        for (int i = 0; i < n; i++) {
+            if (!proc[i].completed && proc[i].burst < shortest_burst) {
+                shortest = i;
+                shortest_burst = proc[i].burst;
+            }
+        }
+        
+        if (shortest == -1) break;
+        
+        // Execute the shortest job
+        proc[shortest].waiting = total_time;
+        proc[shortest].turnaround = total_time + proc[shortest].burst;
+        total_time += proc[shortest].burst;
+        proc[shortest].completed = true;
+        completed++;
+    }
+}
+
+void printResults(struct Process proc[], int n) {
+    int total_wait = 0, total_turnaround = 0;
+    
+    printf("\nPID\tBurst\tWaiting\tTurnaround\n");
+    for (int i = 0; i < n; i++) {
+        printf("%d\t%d\t%d\t%d\n", 
+               proc[i].pid, proc[i].burst, 
+               proc[i].waiting, proc[i].turnaround);
+        
+        total_wait += proc[i].waiting;
+        total_turnaround += proc[i].turnaround;
+    }
+    
+    printf("\nAverage Waiting Time = %.2f\n", (float)total_wait/n);
+    printf("Average Turnaround Time = %.2f\n", (float)total_turnaround/n);
+}
+
+int main() {
+    int n;
+    
+    printf("Enter number of processes: ");
+    scanf("%d", &n);
+    
+    struct Process proc[n];
+    
+    for (int i = 0; i < n; i++) {
+        proc[i].pid = i+1;
+        proc[i].completed = false;
+        printf("Enter burst time for process %d: ", i+1);
+        scanf("%d", &proc[i].burst);
+    }
+    
+    sjf(proc, n);
+    printResults(proc, n);
+    
+    return 0;
+}
