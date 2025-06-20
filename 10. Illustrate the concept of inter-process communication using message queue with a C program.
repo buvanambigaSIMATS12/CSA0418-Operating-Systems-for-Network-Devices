@@ -1,0 +1,48 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <sys/ipc.h>
+#include <sys/msg.h>
+#include <string.h>
+#include <unistd.h>
+
+#define MAX 100
+
+// Structure for message queue
+struct msg_buffer {
+    long msg_type;
+    char msg_text[MAX];
+};
+
+int main() {
+    key_t key;
+    int msgid;
+    struct msg_buffer message;
+
+    // Generate a unique key
+    key = ftok("progfile", 65);
+
+    // Create a message queue
+    msgid = msgget(key, 0666 | IPC_CREAT);
+
+    if (msgid == -1) {
+        perror("msgget failed");
+        exit(1);
+    }
+
+    pid_t pid = fork();
+
+    if (pid > 0) {
+        // Parent: Sender
+        message.msg_type = 1;
+        strcpy(message.msg_text, "Hello from Parent via Message Queue!");
+
+        // Send message
+        msgsnd(msgid, &message, sizeof(message.msg_text), 0);
+        printf("Parent: Message sent\n");
+
+        wait(NULL); // Wait for child
+    } else if (pid == 0) {
+        // Child: Receiver
+        sleep(1); // Give time for parent to send
+        msgrcv(msgid, &message, sizeof(message.msg_text), 1, 0);
+        printf("Child: Message received: %s\n", message.msg_text);_
