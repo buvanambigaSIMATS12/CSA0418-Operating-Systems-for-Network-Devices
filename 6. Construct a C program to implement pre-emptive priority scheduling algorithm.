@@ -1,0 +1,56 @@
+#include <stdio.h>
+
+struct Process {
+    int id, at, bt, rt, prio;
+    int wt, tat, completed;
+};
+
+int main() {
+    int n, time = 0, completed = 0, i, shortest;
+    struct Process p[10];
+
+    printf("Enter number of processes: ");
+    scanf("%d", &n);
+
+    // Input process details
+    for (i = 0; i < n; i++) {
+        printf("Process %d Arrival Time, Burst Time, Priority: ", i + 1);
+        p[i].id = i + 1;
+        scanf("%d %d %d", &p[i].at, &p[i].bt, &p[i].prio);
+        p[i].rt = p[i].bt;
+        p[i].completed = 0;
+    }
+
+    while (completed != n) {
+        int highest = -1, min_prio = 9999;
+
+        for (i = 0; i < n; i++) {
+            if (p[i].at <= time && p[i].completed == 0 && p[i].prio < min_prio && p[i].rt > 0) {
+                min_prio = p[i].prio;
+                highest = i;
+            }
+        }
+
+        if (highest == -1) {
+            time++; // No process available
+        } else {
+            p[highest].rt--;
+            time++;
+
+            if (p[highest].rt == 0) {
+                p[highest].completed = 1;
+                completed++;
+                p[highest].tat = time - p[highest].at;
+                p[highest].wt = p[highest].tat - p[highest].bt;
+            }
+        }
+    }
+
+    printf("\nPID\tAT\tBT\tPRIO\tWT\tTAT\n");
+    for (i = 0; i < n; i++) {
+        printf("P%d\t%d\t%d\t%d\t%d\t%d\n",
+               p[i].id, p[i].at, p[i].bt, p[i].prio, p[i].wt, p[i].tat);
+    }
+
+    return 0;
+}
