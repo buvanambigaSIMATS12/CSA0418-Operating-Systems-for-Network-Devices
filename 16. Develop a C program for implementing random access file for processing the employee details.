@@ -1,0 +1,97 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+struct Employee {
+    int id;
+    char name[20];
+    float salary;
+};
+
+void addEmployee(FILE *fp) {
+    struct Employee emp;
+    printf("Enter Employee ID, Name, and Salary: ");
+    scanf("%d %s %f", &emp.id, emp.name, &emp.salary);
+
+    fseek(fp, (emp.id - 1) * sizeof(emp), SEEK_SET);
+    fwrite(&emp, sizeof(emp), 1, fp);
+
+    printf("Employee record added successfully.\n");
+}
+
+void displayEmployee(FILE *fp) {
+    struct Employee emp;
+    int id;
+
+    printf("Enter Employee ID to display: ");
+    scanf("%d", &id);
+
+    fseek(fp, (id - 1) * sizeof(emp), SEEK_SET);
+    fread(&emp, sizeof(emp), 1, fp);
+
+    if (emp.id != 0)
+        printf("ID: %d\nName: %s\nSalary: %.2f\n", emp.id, emp.name, emp.salary);
+    else
+        printf("Employee not found.\n");
+}
+
+void updateEmployee(FILE *fp) {
+    struct Employee emp;
+    int id;
+
+    printf("Enter Employee ID to update: ");
+    scanf("%d", &id);
+
+    fseek(fp, (id - 1) * sizeof(emp), SEEK_SET);
+    fread(&emp, sizeof(emp), 1, fp);
+
+    if (emp.id != 0) {
+        printf("Enter new Name and Salary: ");
+        scanf("%s %f", emp.name, &emp.salary);
+        fseek(fp, (id - 1) * sizeof(emp), SEEK_SET);
+        fwrite(&emp, sizeof(emp), 1, fp);
+        printf("Employee record updated.\n");
+    } else {
+        printf("Employee not found.\n");
+    }
+}
+
+int main() {
+    FILE *fp;
+    struct Employee emp = {0, "", 0.0};
+    int choice;
+
+    fp = fopen("employee.dat", "rb+");
+    if (fp == NULL) {
+        fp = fopen("employee.dat", "wb+");
+        for (int i = 0; i < 100; i++) {
+            fwrite(&emp, sizeof(emp), 1, fp);
+        }
+    }
+
+    while (1) {
+        printf("\n--- Employee Record System ---\n");
+        printf("1. Add Employee\n2. Display Employee\n3. Update Employee\n4. Exit\n");
+        printf("Enter your choice: ");
+        scanf("%d", &choice);
+
+        switch (choice) {
+        case 1:
+            addEmployee(fp);
+            break;
+        case 2:
+            displayEmployee(fp);
+            break;
+        case 3:
+            updateEmployee(fp);
+            break;
+        case 4:
+            fclose(fp);
+            exit(0);
+        default:
+            printf("Invalid choice!\n");
+        }
+    }
+
+    return 0;
+}
