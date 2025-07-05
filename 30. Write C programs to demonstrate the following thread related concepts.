@@ -1,0 +1,58 @@
+#include <stdio.h>
+#include <pthread.h>
+
+void* threadFunc(void* arg) {
+    printf("Hello from the created thread!\n");
+    return NULL;
+}
+
+int main() {
+    pthread_t tid;
+    pthread_create(&tid, NULL, threadFunc, NULL);
+    pthread_join(tid, NULL);
+    return 0;
+}
+#include <stdio.h>
+#include <pthread.h>
+
+void* threadFunc(void* arg) {
+    printf("Thread is running...\n");
+    return (void*)42;
+}
+
+int main() {
+    pthread_t tid;
+    void* retVal;
+
+    pthread_create(&tid, NULL, threadFunc, NULL);
+    pthread_join(tid, &retVal);
+
+    printf("Thread returned: %ld\n", (long)retVal);
+    return 0;
+}
+#include <stdio.h>
+#include <pthread.h>
+
+void* threadFunc(void* arg) {
+    pthread_t tid = pthread_self();
+    printf("Thread running with ID: %lu\n", tid);
+    return NULL;
+}
+
+int main() {
+    pthread_t tid1, tid2;
+
+    pthread_create(&tid1, NULL, threadFunc, NULL);
+    pthread_create(&tid2, NULL, threadFunc, NULL);
+
+    pthread_join(tid1, NULL);
+    pthread_join(tid2, NULL);
+
+    if (pthread_equal(tid1, tid2)) {
+        printf("Threads are equal.\n");
+    } else {
+        printf("Threads are NOT equal.\n");
+    }
+
+    return 0;
+}
