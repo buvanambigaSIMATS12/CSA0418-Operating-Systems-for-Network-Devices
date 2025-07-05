@@ -1,0 +1,64 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+#define MAX_RECORDS 10
+#define MAX_RECORD_SIZE 100
+
+// Struct to hold a record
+typedef struct {
+    char data[MAX_RECORD_SIZE];
+} Record;
+
+// Function to simulate writing a record to the file
+void writeRecord(FILE *file, Record *record) {
+    fwrite(record, sizeof(Record), 1, file);
+}
+
+// Function to simulate reading a record from the file
+void readRecord(FILE *file, int index, Record *record) {
+    fseek(file, index * sizeof(Record), SEEK_SET); // Seek to the record's position
+    fread(record, sizeof(Record), 1, file);
+}
+
+int main() {
+    FILE *file;
+    Record record;
+    int choice, index;
+    char continueInput = 'y';
+
+    // Open the file in write mode (sequential access)
+    file = fopen("sequential_file.dat", "wb+");
+    if (file == NULL) {
+        printf("Error opening file\n");
+        return 1;
+    }
+
+    // Simulating writing records to the file sequentially
+    while (continueInput == 'y' || continueInput == 'Y') {
+        printf("Enter record data (max 100 characters): ");
+        fgets(record.data, MAX_RECORD_SIZE, stdin);
+        record.data[strcspn(record.data, "\n")] = '\0';  // Remove the newline character
+
+        // Write the record to the file
+        writeRecord(file, &record);
+
+        printf("Do you want to enter another record? (y/n): ");
+        scanf(" %c", &continueInput);  // The space before %c consumes any leftover newline character
+        getchar();  // Consume newline after reading a character
+    }
+
+    // Simulating reading a record from the file
+    printf("\nEnter the record number to read (0 to %d): ", MAX_RECORDS - 1);
+    scanf("%d", &index);
+    if (index < 0 || index >= MAX_RECORDS) {
+        printf("Invalid index.\n");
+    } else {
+        readRecord(file, index, &record);
+        printf("\nRecord %d: %s\n", index, record.data);
+    }
+
+    // Close the file
+    fclose(file);
+    return 0;
+}
