@@ -1,0 +1,85 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+void cscanDiskScheduling(int* requests, int numRequests, int startTrack, int diskSize) {
+    int i, j, seekCount = 0;
+    int totalSeekTime = 0;
+
+    // Sorting the requests to simulate the C-SCAN movement
+    int* sortedRequests = (int*)malloc(numRequests * sizeof(int));
+    for (i = 0; i < numRequests; i++) {
+        sortedRequests[i] = requests[i];
+    }
+
+    // Sort the requests in ascending order
+    for (i = 0; i < numRequests - 1; i++) {
+        for (j = 0; j < numRequests - i - 1; j++) {
+            if (sortedRequests[j] > sortedRequests[j + 1]) {
+                int temp = sortedRequests[j];
+                sortedRequests[j] = sortedRequests[j + 1];
+                sortedRequests[j + 1] = temp;
+            }
+        }
+    }
+
+    printf("Disk requests in sorted order: ");
+    for (i = 0; i < numRequests; i++) {
+        printf("%d ", sortedRequests[i]);
+    }
+    printf("\n");
+
+    // Moving the disk arm from the starting track to the rightmost track
+    printf("\nMoving from %d to %d\n", startTrack, sortedRequests[0]);
+    totalSeekTime += abs(startTrack - sortedRequests[0]);
+    startTrack = sortedRequests[0];
+
+    // Move towards right until the last request
+    for (i = 1; i < numRequests; i++) {
+        printf("Moving from %d to %d\n", startTrack, sortedRequests[i]);
+        totalSeekTime += abs(startTrack - sortedRequests[i]);
+        startTrack = sortedRequests[i];
+    }
+
+    // Jump to the beginning of the disk (circular movement)
+    printf("\nReaching the end of the disk, moving back to the beginning\n");
+    totalSeekTime += abs(startTrack - (diskSize - 1));
+    startTrack = diskSize - 1;
+
+    // Move from the beginning of the disk to the last request
+    printf("\nNow moving from track %d to track %d\n", startTrack, sortedRequests[0]);
+    totalSeekTime += abs(startTrack - sortedRequests[0]);
+    startTrack = sortedRequests[0];
+
+    // Displaying the total seek time
+    printf("\nTotal Seek Time: %d\n", totalSeekTime);
+    free(sortedRequests);
+}
+
+int main() {
+    int numRequests, startTrack, diskSize;
+
+    // Input the number of disk requests
+    printf("Enter the number of disk requests: ");
+    scanf("%d", &numRequests);
+
+    int requests[numRequests];
+
+    // Input the disk requests
+    printf("Enter the disk requests (space-separated): ");
+    for (int i = 0; i < numRequests; i++) {
+        scanf("%d", &requests[i]);
+    }
+
+    // Input the initial position of the disk arm (starting track)
+    printf("Enter the initial position of the disk arm: ");
+    scanf("%d", &startTrack);
+
+    // Input the total disk size (maximum number of tracks)
+    printf("Enter the total number of tracks on the disk: ");
+    scanf("%d", &diskSize);
+
+    // Call the C-SCAN disk scheduling function
+    cscanDiskScheduling(requests, numRequests, startTrack, diskSize);
+
+    return 0;
+}
