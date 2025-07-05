@@ -1,0 +1,46 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+// Function to calculate the total seek time
+int calculateSeekTime(int *requests, int numRequests, int startTrack) {
+    int totalSeekTime = 0;
+    int currentTrack = startTrack;
+
+    printf("Processing the disk requests in FCFS order:\n");
+    for (int i = 0; i < numRequests; i++) {
+        int requestTrack = requests[i];
+        printf("Move from track %d to track %d\n", currentTrack, requestTrack);
+        totalSeekTime += abs(currentTrack - requestTrack);  // Calculate the seek time
+        currentTrack = requestTrack;  // Update the current track
+    }
+
+    return totalSeekTime;
+}
+
+int main() {
+    int numRequests, startTrack;
+
+    // Input the number of disk requests
+    printf("Enter the number of disk requests: ");
+    scanf("%d", &numRequests);
+
+    int requests[numRequests];
+
+    // Input the disk requests
+    printf("Enter the disk requests (space-separated): ");
+    for (int i = 0; i < numRequests; i++) {
+        scanf("%d", &requests[i]);
+    }
+
+    // Input the initial position of the disk arm (starting track)
+    printf("Enter the initial position of the disk arm: ");
+    scanf("%d", &startTrack);
+
+    // Calculate the total seek time
+    int totalSeekTime = calculateSeekTime(requests, numRequests, startTrack);
+
+    // Display the results
+    printf("\nTotal seek time: %d\n", totalSeekTime);
+
+    return 0;
+}
