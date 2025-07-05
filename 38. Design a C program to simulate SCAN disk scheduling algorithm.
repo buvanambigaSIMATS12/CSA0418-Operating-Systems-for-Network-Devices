@@ -1,0 +1,115 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+void scanDiskScheduling(int* requests, int numRequests, int startTrack, int diskSize, int direction) {
+    int i, j, seekCount = 0;
+    int totalSeekTime = 0;
+
+    // Sorting the requests to simulate the SCAN movement
+    int* sortedRequests = (int*)malloc(numRequests * sizeof(int));
+    for (i = 0; i < numRequests; i++) {
+        sortedRequests[i] = requests[i];
+    }
+
+    // Sort the requests in ascending order
+    for (i = 0; i < numRequests - 1; i++) {
+        for (j = 0; j < numRequests - i - 1; j++) {
+            if (sortedRequests[j] > sortedRequests[j + 1]) {
+                int temp = sortedRequests[j];
+                sortedRequests[j] = sortedRequests[j + 1];
+                sortedRequests[j + 1] = temp;
+            }
+        }
+    }
+
+    printf("Disk requests in sorted order: ");
+    for (i = 0; i < numRequests; i++) {
+        printf("%d ", sortedRequests[i]);
+    }
+    printf("\n");
+
+    // Moving the disk arm based on the direction (left or right)
+    if (direction == 1) {
+        // Moving towards right (upward)
+        for (i = 0; i < numRequests; i++) {
+            if (sortedRequests[i] >= startTrack) {
+                // Seek the requests in the sorted order
+                printf("\nMoving from %d to %d\n", startTrack, sortedRequests[i]);
+                totalSeekTime += abs(startTrack - sortedRequests[i]);
+                startTrack = sortedRequests[i];
+            }
+        }
+        // Reversing the direction after reaching the rightmost track
+        printf("\nMoving back towards left after reaching the end\n");
+        totalSeekTime += abs(startTrack - (diskSize - 1));
+        startTrack = diskSize - 1;
+
+        // Now, moving back towards left (downward)
+        for (i = numRequests - 1; i >= 0; i--) {
+            if (sortedRequests[i] < startTrack) {
+                printf("\nMoving from %d to %d\n", startTrack, sortedRequests[i]);
+                totalSeekTime += abs(startTrack - sortedRequests[i]);
+                startTrack = sortedRequests[i];
+            }
+        }
+    } else {
+        // Moving towards left (downward)
+        for (i = numRequests - 1; i >= 0; i--) {
+            if (sortedRequests[i] <= startTrack) {
+                // Seek the requests in the sorted order
+                printf("\nMoving from %d to %d\n", startTrack, sortedRequests[i]);
+                totalSeekTime += abs(startTrack - sortedRequests[i]);
+                startTrack = sortedRequests[i];
+            }
+        }
+        // Reversing the direction after reaching the leftmost track
+        printf("\nMoving back towards right after reaching the beginning\n");
+        totalSeekTime += abs(startTrack - 0);
+        startTrack = 0;
+
+        // Now, moving back towards right (upward)
+        for (i = 0; i < numRequests; i++) {
+            if (sortedRequests[i] > startTrack) {
+                printf("\nMoving from %d to %d\n", startTrack, sortedRequests[i]);
+                totalSeekTime += abs(startTrack - sortedRequests[i]);
+                startTrack = sortedRequests[i];
+            }
+        }
+    }
+
+    printf("\nTotal Seek Time: %d\n", totalSeekTime);
+    free(sortedRequests);
+}
+
+int main() {
+    int numRequests, startTrack, diskSize, direction;
+
+    // Input the number of disk requests
+    printf("Enter the number of disk requests: ");
+    scanf("%d", &numRequests);
+
+    int requests[numRequests];
+
+    // Input the disk requests
+    printf("Enter the disk requests (space-separated): ");
+    for (int i = 0; i < numRequests; i++) {
+        scanf("%d", &requests[i]);
+    }
+
+    // Input the initial position of the disk arm (starting track)
+    printf("Enter the initial position of the disk arm: ");
+    scanf("%d", &startTrack);
+
+    // Input the total disk size (maximum number of tracks)
+    printf("Enter the total number of tracks on the disk: ");
+    scanf("%d", &diskSize);
+
+    // Input the direction of movement (1 = right, 0 = left)
+    printf("Enter the initial direction of the disk arm (1 for right, 0 for left): ");
+    scanf("%d", &direction);
+
+    // Call the SCAN disk scheduling function
+    scanDiskScheduling(requests, numRequests, startTrack, diskSize, direction);
+
+    return 0;
+}
