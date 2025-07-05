@@ -1,0 +1,45 @@
+#include <stdio.h>
+#include <fcntl.h>
+#include <unistd.h>
+#include <stdlib.h>
+#include <string.h>
+
+int main() {
+    int fd;
+    char buffer[100];
+
+    // 1. Create and open a file
+    fd = open("demo.txt", O_CREAT | O_RDWR, 0644);
+    if (fd < 0) {
+        perror("Failed to open file");
+        return 1;
+    }
+    printf("File 'demo.txt' created and opened with file descriptor %d\n", fd);
+
+    // 2. Write data to the file
+    const char *data = "Hello, this is a file created using system calls.\n";
+    write(fd, data, strlen(data));
+    printf("Data written to file.\n");
+
+    // 3. Move file pointer to the beginning
+    lseek(fd, 0, SEEK_SET);
+
+    // 4. Read data back from the file
+    int bytesRead = read(fd, buffer, sizeof(buffer) - 1);
+    if (bytesRead >= 0) {
+        buffer[bytesRead] = '\0'; // Null-terminate the buffer
+        printf("Data read from file:\n%s", buffer);
+    } else {
+        perror("Read error");
+    }
+
+    // 5. Close the file
+    close(fd);
+    printf("\nFile closed.\n");
+
+    // 6. Delete the file (optional)
+    // Uncomment the next line to delete the file
+    // unlink("demo.txt");
+
+    return 0;
+}
