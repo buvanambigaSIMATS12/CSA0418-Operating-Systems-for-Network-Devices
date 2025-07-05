@@ -1,0 +1,53 @@
+#include <stdio.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <unistd.h>
+
+int main() {
+    struct stat fileStat;
+    char *fileName = "testfile.txt";
+
+    // Get file status
+    if (stat(fileName, &fileStat) == -1) {
+        perror("stat");
+        return 1;
+    }
+
+    // Display the file access permissions in symbolic format
+    printf("File Permissions: \n");
+
+    // Owner permissions
+    printf("Owner: ");
+    if (fileStat.st_mode & S_IRUSR) printf("r");
+    else printf("-");
+    if (fileStat.st_mode & S_IWUSR) printf("w");
+    else printf("-");
+    if (fileStat.st_mode & S_IXUSR) printf("x");
+    else printf("-");
+
+    // Group permissions
+    printf(" Group: ");
+    if (fileStat.st_mode & S_IRGRP) printf("r");
+    else printf("-");
+    if (fileStat.st_mode & S_IWGRP) printf("w");
+    else printf("-");
+    if (fileStat.st_mode & S_IXGRP) printf("x");
+    else printf("-");
+
+    // Others permissions
+    printf(" Others: ");
+    if (fileStat.st_mode & S_IROTH) printf("r");
+    else printf("-");
+    if (fileStat.st_mode & S_IWOTH) printf("w");
+    else printf("-");
+    if (fileStat.st_mode & S_IXOTH) printf("x");
+    else printf("-");
+
+    printf("\n");
+
+    // Display the file owner and group information
+    printf("File Owner UID: %d\n", fileStat.st_uid);
+    printf("File Group GID: %d\n", fileStat.st_gid);
+
+    return 0;
+}
