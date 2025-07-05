@@ -1,0 +1,80 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+#define MAX_BLOCKS 50
+#define MAX_FILE_BLOCKS 10
+
+int main() {
+    int totalBlocks, indexBlock, numFileBlocks;
+    int freeBlocks[MAX_BLOCKS];
+    int i, j;
+
+    // Initialize all blocks as free (1 means free, 0 means allocated)
+    for(i = 0; i < MAX_BLOCKS; i++) {
+        freeBlocks[i] = 1;
+    }
+
+    printf("Enter total number of blocks on disk (max %d): ", MAX_BLOCKS);
+    scanf("%d", &totalBlocks);
+    if(totalBlocks > MAX_BLOCKS || totalBlocks <= 0) {
+        printf("Invalid number of blocks.\n");
+        return 1;
+    }
+
+    printf("Enter number of blocks required for the file (max %d): ", MAX_FILE_BLOCKS);
+    scanf("%d", &numFileBlocks);
+    if(numFileBlocks > MAX_FILE_BLOCKS || numFileBlocks <= 0) {
+        printf("Invalid file block count.\n");
+        return 1;
+    }
+
+    // Allocate index block
+    printf("Enter index block number (0 to %d): ", totalBlocks - 1);
+    scanf("%d", &indexBlock);
+
+    if(indexBlock < 0 || indexBlock >= totalBlocks) {
+        printf("Invalid index block number.\n");
+        return 1;
+    }
+
+    if(freeBlocks[indexBlock] == 0) {
+        printf("Index block already allocated.\n");
+        return 1;
+    }
+
+    freeBlocks[indexBlock] = 0; // Mark index block as allocated
+
+    int fileBlocks[numFileBlocks];
+
+    printf("Enter the block numbers for the file blocks:\n");
+    for(i = 0; i < numFileBlocks; i++) {
+        int blockNum;
+        printf("Block %d: ", i);
+        scanf("%d", &blockNum);
+
+        if(blockNum < 0 || blockNum >= totalBlocks) {
+            printf("Invalid block number.\n");
+            i--; // Ask again
+            continue;
+        }
+
+        if(freeBlocks[blockNum] == 0) {
+            printf("Block already allocated. Choose another block.\n");
+            i--; // Ask again
+            continue;
+        }
+
+        freeBlocks[blockNum] = 0;  // Mark block as allocated
+        fileBlocks[i] = blockNum;
+    }
+
+    // Display the file allocation
+    printf("\nFile Allocation Table:\n");
+    printf("Index Block: %d\n", indexBlock);
+    printf("File blocks pointed by index block:\n");
+    for(i = 0; i < numFileBlocks; i++) {
+        printf("Block %d -> Block %d\n", i, fileBlocks[i]);
+    }
+
+    return 0;
+}
