@@ -1,0 +1,102 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+#define MAX_BLOCKS 50  // Total number of blocks available on the disk
+
+// Structure to represent a disk block
+typedef struct Block {
+    int blockNumber;    // Block number (to simulate disk block)
+    struct Block* next; // Pointer to the next block in the linked list
+} Block;
+
+// Structure for a file
+typedef struct File {
+    Block* firstBlock; // Pointer to the first block of the file
+    Block* lastBlock;  // Pointer to the last block of the file
+} File;
+
+// Function to create a new block
+Block* createBlock(int blockNumber) {
+    Block* newBlock = (Block*)malloc(sizeof(Block));
+    newBlock->blockNumber = blockNumber;
+    newBlock->next = NULL;
+    return newBlock;
+}
+
+// Function to allocate blocks to a file using linked allocation
+void allocateFileBlocks(File* file, int* blockNumbers, int numBlocks) {
+    if (numBlocks <= 0) {
+        printf("Error: Cannot allocate zero or negative blocks.\n");
+        return;
+    }
+
+    file->firstBlock = createBlock(blockNumbers[0]);
+    file->lastBlock = file->firstBlock;
+
+    for (int i = 1; i < numBlocks; i++) {
+        Block* newBlock = createBlock(blockNumbers[i]);
+        file->lastBlock->next = newBlock;  // Link the previous block to the new block
+        file->lastBlock = newBlock;        // Update the last block pointer
+    }
+}
+
+// Function to display the blocks of the file
+void displayFile(File* file) {
+    if (file->firstBlock == NULL) {
+        printf("No blocks allocated for this file.\n");
+        return;
+    }
+
+    printf("File blocks (linked list):\n");
+    Block* current = file->firstBlock;
+    while (current != NULL) {
+        printf("Block %d -> ", current->blockNumber);
+        current = current->next;
+    }
+    printf("NULL\n");
+}
+
+int main() {
+    File file;
+    file.firstBlock = NULL;
+    file.lastBlock = NULL;
+
+    int blockNumbers[MAX_BLOCKS];  // Array to store the block numbers for a file
+    int numBlocks;
+
+    // Get the number of blocks to allocate to the file
+    printf("Enter the number of blocks to allocate for the file (max %d): ", MAX_BLOCKS);
+    scanf("%d", &numBlocks);
+    if (numBlocks <= 0 || numBlocks > MAX_BLOCKS) {
+        printf("Invalid number of blocks.\n");
+        return 1;
+    }
+
+    // Get the block numbers for the file
+    printf("Enter the block numbers to allocate:\n");
+    for (int i = 0; i < numBlocks; i++) {
+        printf("Block %d: ", i + 1);
+        scanf("%d", &blockNumbers[i]);
+        if (blockNumbers[i] < 0 || blockNumbers[i] >= MAX_BLOCKS) {
+            printf("Invalid block number. Please enter a valid block number between 0 and %d.\n", MAX_BLOCKS - 1);
+            i--;  // Retry input for the current block
+        }
+    }
+
+    // Allocate the blocks to the file using linked allocation
+    allocateFileBlocks(&file, blockNumbers, numBlocks);
+
+    // Display the file's block allocation
+    displayFile(&file);
+
+    // Free the allocated blocks (avoid memory leak)
+    Block* current = file.firstBlock;
+    Block* next;
+    while (current != NULL) {
+        next = current->next;
+        free(current);
+        current = next;
+    }
+
+    return 0;
+}
