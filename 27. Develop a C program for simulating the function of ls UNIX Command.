@@ -1,0 +1,23 @@
+#include <stdio.h>
+#include <dirent.h>
+
+int main() {
+    DIR *d;
+    struct dirent *dir;
+
+    d = opendir(".");
+    if (d == NULL) {
+        perror("Unable to open directory");
+        return 1;
+    }
+
+    while ((dir = readdir(d)) != NULL) {
+        if (dir->d_name[0] != '.') {  // Skip hidden files
+            printf("%s  ", dir->d_name);
+        }
+    }
+    printf("\n");
+
+    closedir(d);
+    return 0;
+}
