@@ -1,0 +1,36 @@
+#include <stdio.h>
+#include <fcntl.h>
+#include <unistd.h>
+#include <sys/stat.h>
+#include <dirent.h>
+
+int main() {
+    int fd;
+    char buffer[50];
+    struct stat fileStat;
+    struct dirent *de;
+    DIR *dr;
+
+    fd = open("sample.txt", O_RDWR | O_CREAT, 0644);
+    write(fd, "UNIX system call demo", 22);
+    lseek(fd, 0, SEEK_SET);
+    read(fd, buffer, 22);
+    buffer[22] = '\0';
+    printf("Read content: %s\n", buffer);
+
+    fcntl(fd, F_SETFL, O_NONBLOCK);
+    fstat(fd, &fileStat);
+    printf("File Size: %ld bytes\n", fileStat.st_size);
+    close(fd);
+
+    dr = opendir(".");
+    if (dr != NULL) {
+        printf("Files in current directory:\n");
+        while ((de = readdir(dr)) != NULL) {
+            printf("%s\n", de->d_name);
+        }
+        closedir(dr);
+    }
+
+    return 0;
+}
